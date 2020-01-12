@@ -6,6 +6,94 @@ import pycocotools.mask as maskUtils
 import torch.nn as nn
 
 from mmdet.core import auto_fp16, get_classes, tensor2imgs
+from ..builder import *
+
+
+class BaseClassifier(nn.Module):
+    pass
+
+
+class BaseAutoEncoder(nn.Module):
+    def __init__(self, decoder_model, encoder_model, loss_fn=nn.CrossEntropyLoss):
+        super(BaseAutoEncoder, self).__init__()
+        self.encoder = build_backbone(encoder_model)
+        self.decoder = build_decoder(decoder_model)
+        self.loss_fn = loss_fn
+
+    @abstractmethod
+    def forward_train(self, imgs, img_meta):
+        self.train()
+        x = self.forward_test(imgs, img_meta)
+        loss = self.loss_fn(imgs, x)
+        return loss
+
+    def forward_test(self, imgs, img_meta):
+        self.eval()
+        x = self.encoder(imgs)
+        x = self.decoder(x)
+        return x
+
+    def extract_feat(self, imgs):
+        x = self.encoder(imgs)
+        x = x.view(x.size(0), -1)
+        return x
+
+    def extract_feats(self, imgs):
+        assert type(imgs)==list
+        for img in imgs:
+            yield self.extract_feat(img)
+
+    def forward(self, imgs, img_meta, return_loss=True, **kwargs):
+        if return_loss:
+            return self.forward_train(imgs, img_meta)
+        else:
+            return self.forward_test(imgs, img_meta)
+
+    @staticmethod
+    def compare(feature1, feature2):
+        """
+        特征向量的比较
+        :param feature1:
+        :param feature2:
+        :return:
+        """
+        return (feature1-feature2).abs().sum()
+
+    def show_result(self, data, result, dataset=None, score_thr=0.3):
+        """
+
+        :param data: a dict of original data
+        :param result: the result of
+        :param dataset:
+        :param score_thr:
+        :return:
+        """
+        decode_imgs = result
+
+        img_tensor = data['img'][0]
+        img_metas = data['img_meta'][0].data[0]
+        imgs = tensor2imgs(img_tensor, **img_metas[0]['img_norm_cfg'])
+        assert len(imgs) == len(img_metas)
+
+        if dataset is None:
+            class_names = self.CLASSES
+        elif isinstance(dataset, str):
+            class_names = get_classes(dataset)
+        elif isinstance(dataset, (list, tuple)):
+            class_names = dataset
+        else:
+            raise TypeError(
+                'dataset must be a valid dataset name or a sequence'
+                ' of class names, not {}'.format(type(dataset)))
+
+        for img, decode_img in zip(imgs, decode_imgs):
+            img_show = np.hstack(img, decode_img)
+            mmcv.imshow_det_bboxes(
+                img_show,
+                None,
+                None,
+                class_names=class_names,
+                score_thr=score_thr)
 
 
 class BaseDetector(nn.Module, metaclass=ABCMeta):
