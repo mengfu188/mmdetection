@@ -18,7 +18,7 @@ model = dict(
         num_outs=5),
     bbox_head=dict(
         type='RetinaHead',
-        num_classes=3,
+        num_classes=2,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -106,7 +106,7 @@ data = dict(
         ann_file=data_root + 'ImageSets/Main/val.txt',
         img_prefix=data_root,
         pipeline=test_pipeline),)
-evaluation = dict(interval=1, metric='bbox')
+evaluation = dict(interval=1, metric='mAP')
 # optimizer
 optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
@@ -127,7 +127,7 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 2
+total_epochs = 5
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = __file__.replace('configs', 'work_dirs').rstrip('.py')

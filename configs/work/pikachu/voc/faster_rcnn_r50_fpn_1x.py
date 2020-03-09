@@ -1,20 +1,25 @@
 # model settings
 model = dict(
     type='FasterRCNN',
-    pretrained=None,
+    pretrained='torchvision://resnet50',
     backbone=dict(
-        type='Mb_Tiny_RFB'),
+        type='ResNet',
+        depth=50,
+        num_stages=4,
+        out_indices=(0, 1, 2, 3),
+        frozen_stages=1,
+        style='pytorch'),
     neck=dict(
         type='FPN',
-        in_channels=[32, 64, 128, 256],
-        out_channels=128,
+        in_channels=[256, 512, 1024, 2048],
+        out_channels=256,
         num_outs=5),
     rpn_head=dict(
         type='RPNHead',
-        in_channels=128,
-        feat_channels=128,
+        in_channels=256,
+        feat_channels=256,
         anchor_scales=[8],
-        anchor_ratios=[1.0],
+        anchor_ratios=[0.5, 1.0, 2],
         anchor_strides=[4, 8, 16, 32, 64],
         target_means=[.0, .0, .0, .0],
         target_stds=[1.0, 1.0, 1.0, 1.0],
@@ -24,15 +29,15 @@ model = dict(
     bbox_roi_extractor=dict(
         type='SingleRoIExtractor',
         roi_layer=dict(type='RoIAlign', out_size=7, sample_num=2),  # sample_num采样点
-        out_channels=128,
+        out_channels=256,
         featmap_strides=[4, 8, 16, 32]),
     bbox_head=dict(
         type='SharedFCBBoxHead',
         num_fcs=2,
-        in_channels=128,
+        in_channels=256,
         fc_out_channels=1024,
         roi_feat_size=7,
-        num_classes=5,
+        num_classes=2,
         target_means=[0., 0., 0., 0.],
         target_stds=[0.1, 0.1, 0.2, 0.2],
         reg_class_agnostic=False,
@@ -50,7 +55,7 @@ train_cfg = dict(
             ignore_iof_thr=-1),
         sampler=dict(
             type='RandomSampler',
-            num=128,
+            num=256,
             pos_fraction=0.5,
             neg_pos_ub=-1,
             add_gt_as_proposals=False),
@@ -99,7 +104,7 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
+    dict(type='Resize', img_scale=(300, 200), keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
     # dict(type='PhotoMetricDistortion',),
     dict(type='Normalize', **img_norm_cfg),
@@ -111,7 +116,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1333, 800),
+        img_scale=(300, 200),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -127,14 +132,13 @@ dataset_type = 'PikachuDataset'
 data_root = '/datasets/PikachuVOC/'
 
 data = dict(
-    imgs_per_gpu=8,
+    imgs_per_gpu=2,
     workers_per_gpu=4,
     train=dict(type=dataset_type,
         data_root=data_root,
         ann_file=data_root + 'ImageSets/Main/train.txt',
         img_prefix=data_root,
-        pipeline=train_pipeline,
-        use_ignore=True),
+        pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         data_root=data_root,
@@ -148,7 +152,7 @@ data = dict(
         img_prefix=data_root,
         pipeline=test_pipeline),)
 # optimizer
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer = dict(type='SGD', lr=0.0025, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
 lr_config = dict(
@@ -174,5 +178,3 @@ work_dir = __file__.replace('configs', 'work_dirs').rstrip('.py')
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
-
-
