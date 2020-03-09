@@ -18,6 +18,12 @@ class PikachuDataset(XMLDataset):
 
 
 @DATASETS.register_module
+class PikachuCocoDataset(CocoDataset):
+
+    CLASSES = ('pikachu',)
+
+
+@DATASETS.register_module
 class MAFADatasetV3(XMLDataset):
 
     CLASSES = ('mask', 'face')
