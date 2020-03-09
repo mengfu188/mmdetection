@@ -19,6 +19,7 @@ class XMLDataset(CustomDataset):
     def load_annotations(self, ann_file):
         img_infos = []
         img_ids = mmcv.list_from_file(ann_file)
+        img_ids = [x.rstrip('.xml') for x in img_ids]
         for img_id in img_ids:
             filename = 'JPEGImages/{}.jpg'.format(img_id)
             xml_path = osp.join(self.img_prefix, 'Annotations',
@@ -48,10 +49,10 @@ class XMLDataset(CustomDataset):
             difficult = int(obj.find('difficult').text)
             bnd_box = obj.find('bndbox')
             bbox = [
-                int(bnd_box.find('xmin').text),
-                int(bnd_box.find('ymin').text),
-                int(bnd_box.find('xmax').text),
-                int(bnd_box.find('ymax').text)
+                int(float(bnd_box.find('xmin').text)),
+                int(float(bnd_box.find('ymin').text)),
+                int(float(bnd_box.find('xmax').text)),
+                int(float(bnd_box.find('ymax').text))
             ]
             ignore = False
             if self.min_size:
