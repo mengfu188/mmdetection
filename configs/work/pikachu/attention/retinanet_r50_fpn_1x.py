@@ -8,7 +8,11 @@ model = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
-        style='pytorch'),
+        style='pytorch',
+        gen_attention=dict(
+            spatial_range=-1, num_heads=8, attention_type='0010', kv_stride=2),
+        stage_with_gen_attention=[[], [], [0, 1, 2, 3, 4, 5], [0, 1, 2]],
+    ),
     neck=dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
