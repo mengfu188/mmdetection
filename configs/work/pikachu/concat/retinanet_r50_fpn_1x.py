@@ -64,9 +64,8 @@ train_pipeline = [
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
-    # dict(type='PhotoMetricDistortion', ),
     dict(type='DefaultFormatBundle'),
-    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile'),
@@ -86,11 +85,17 @@ test_pipeline = [
 data = dict(
     imgs_per_gpu=2,
     workers_per_gpu=2,
-    train=dict(
+    train=[dict(
         type=dataset_type,
         ann_file=data_root + 'pikachu-coco.json',
         img_prefix=data_root + '',
         pipeline=train_pipeline),
+        dict(
+            type=dataset_type,
+            ann_file=data_root + 'pikachu-coco.json',
+            img_prefix=data_root + '',
+            pipeline=train_pipeline),
+    ],
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'pikachu-coco.json',
