@@ -30,3 +30,8 @@ class MAFADatasetV3(XMLDataset):
 
     def __init__(self, **kwargs):
         super(MAFADatasetV3, self).__init__(**kwargs)
+
+
+@DATASETS.register_module
+class MAFACocoDatasetV3(CocoDataset):
+    CLASSES = ('mask', 'face')
