@@ -93,8 +93,7 @@ data = dict(
         data_root=data_root,
         ann_file=data_root + 'ImageSets/Main/train.txt',
         img_prefix=data_root,
-        pipeline=train_pipeline,
-        use_ignore=True),
+        pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         data_root=data_root,
@@ -107,7 +106,7 @@ data = dict(
         ann_file=data_root + 'ImageSets/Main/val.txt',
         img_prefix=data_root,
         pipeline=test_pipeline),)
-evaluation = dict(interval=1, metric='bbox')
+evaluation = dict(interval=1, metric='mAP')
 # optimizer
 optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
