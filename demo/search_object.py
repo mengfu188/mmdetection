@@ -99,7 +99,7 @@ def main():
     prog_bar = mmcv.ProgressBar(camera_count)
 
     print('Press "Esc", "q" or "Q" to exit.')
-    while tqdm(True, gui=True):
+    while True:
         grab_count = 0
         while True:
             ret_val, img = camera.read()
