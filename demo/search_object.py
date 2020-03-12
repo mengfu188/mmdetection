@@ -70,6 +70,7 @@ def get_args():
     parser.add_argument('--roi', type=int, nargs='+', default=[])
     parser.add_argument('--roi-threshold', type=float, default=0.5)
     parser.add_argument('--show', action='store_true')
+    parser.add_argument('--start-frame', type=int, default=0)
 
     args = parser.parse_args()
     return args
@@ -86,6 +87,7 @@ def main():
     width = camera.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
     camera_count = camera.get(cv2.CAP_PROP_FRAME_COUNT)
+    camera.set(cv2.CAP_PROP_POS_FRAMES, args.start_frame)
 
     print(f'camera fps {fps}, width {width}, height {height}, frame count {camera_count}')
 
@@ -95,8 +97,9 @@ def main():
     frame_rate = 0
     start_time = time.time()
     frame_count = 0
-    total_count = 0
+    total_count = args.start_frame
     prog_bar = mmcv.ProgressBar(camera_count)
+    prog_bar.completed = args.start_frame
 
     print('Press "Esc", "q" or "Q" to exit.')
     while True:
