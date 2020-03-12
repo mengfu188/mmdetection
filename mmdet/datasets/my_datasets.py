@@ -35,3 +35,13 @@ class MAFADatasetV3(XMLDataset):
 @DATASETS.register_module
 class MAFACocoDatasetV3(CocoDataset):
     CLASSES = ('mask', 'face')
+
+
+@DATASETS.register_module
+class OpticalWaterDataset(XMLDataset):
+    CLASSES = ('echinus', 'starfish', 'scallop', 'holothurian', 'waterweeds')
+
+
+@DATASETS.register_module
+class AcousticWaterDataset(XMLDataset):
+    CLASSES = ('target',)
