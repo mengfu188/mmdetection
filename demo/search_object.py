@@ -9,6 +9,7 @@ import time
 import torch
 from mmdet.apis import init_detector, inference_detector, show_result
 from tqdm import tqdm
+import mmcv
 
 
 # float calcIOU(FaceInfo box1, FaceInfo box2, string mode)
@@ -84,8 +85,9 @@ def main():
     fps = camera.get(cv2.CAP_PROP_FPS)
     width = camera.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    camera_count = camera.get(cv2.CAP_PROP_FRAME_COUNT)
 
-    print(f'camera fps {fps}, width {width}, height {height}')
+    print(f'camera fps {fps}, width {width}, height {height}, frame count {camera_count}')
 
     if not args.roi:
         args.roi = [0, 0, int(width-1), int(height-1)]
@@ -94,6 +96,7 @@ def main():
     start_time = time.time()
     frame_count = 0
     total_count = 0
+    prog_bar = mmcv.ProgressBar(camera_count)
 
     print('Press "Esc", "q" or "Q" to exit.')
     while tqdm(True, gui=True):
@@ -103,6 +106,7 @@ def main():
             grab_count += 1
             frame_count += 1
             total_count += 1
+            prog_bar.update()
             if grab_count == args.skip_step:
                 break
 
