@@ -111,8 +111,8 @@ def main():
                 break
 
         result = inference_detector(model, img)
-        result = [x for i, x in enumerate(result) if i in args.target_classes]
-
+        result = [x if i in args.target_classes else np.zeros((0, 5)) for i, x in enumerate(result) ]
+        result = [x[x[:, 4] > args.score_thr] for i, x in enumerate(result)]
         flag = False
         for obj in result:
             for bbox in obj:
