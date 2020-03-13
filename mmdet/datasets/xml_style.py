@@ -46,7 +46,8 @@ class XMLDataset(CustomDataset):
         for obj in root.findall('object'):
             name = obj.find('name').text
             label = self.cat2label[name]
-            difficult = int(obj.find('difficult').text)
+            difficult = int(obj.find('difficult').text) \
+                if obj.find('difficult') is not None else 0
             bnd_box = obj.find('bndbox')
             bbox = [
                 int(float(bnd_box.find('xmin').text)),
