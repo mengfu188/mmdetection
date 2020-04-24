@@ -67,6 +67,7 @@ class BaseSampler(metaclass=ABCMeta):
         bboxes = bboxes[:, :4]
 
         gt_flags = bboxes.new_zeros((bboxes.shape[0], ), dtype=torch.uint8)
+        # 增加gt作为正样本
         if self.add_gt_as_proposals and len(gt_bboxes) > 0:
             if gt_labels is None:
                 raise ValueError(
